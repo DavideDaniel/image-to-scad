@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from image_to_scad import __version__
 from image_to_scad.config import ConversionConfig
 from image_to_scad.converter import Converter
 from image_to_scad.utils.logging import setup_logging, get_logger
@@ -108,7 +109,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 0.1.0",
+        version=f"%(prog)s {__version__}",
     )
 
     return parser

@@ -146,43 +146,45 @@ module relief_surface() {{
             x = col * cell_width;
             y = row * cell_height;
 
-            // Create two triangles for this cell
+            // Create two triangular prisms for this cell (manifold geometry)
             translate([x, y, 0]) {{
-                // Triangle 1: bottom-left
+                // Prism 1: bottom-left triangle
+                // Points: 0-2 bottom, 3-5 top (corresponding vertices)
                 polyhedron(
                     points = [
-                        [0, 0, 0],
-                        [cell_width, 0, 0],
-                        [0, cell_height, 0],
-                        [0, 0, h00],
-                        [cell_width, 0, h01],
-                        [0, cell_height, h10]
+                        [0, 0, 0],              // 0: bottom-front-left
+                        [cell_width, 0, 0],     // 1: bottom-front-right
+                        [0, cell_height, 0],    // 2: bottom-back-left
+                        [0, 0, h00],            // 3: top-front-left
+                        [cell_width, 0, h01],   // 4: top-front-right
+                        [0, cell_height, h10]   // 5: top-back-left
                     ],
                     faces = [
-                        [0, 1, 2],      // bottom
-                        [3, 5, 4],      // top
-                        [0, 3, 4, 1],   // front
-                        [1, 4, 5, 2],   // right
-                        [2, 5, 3, 0]    // left
+                        [0, 2, 1],      // bottom (CCW from below)
+                        [3, 4, 5],      // top (CCW from above)
+                        [0, 1, 4, 3],   // front (y=0, CCW from front)
+                        [1, 2, 5, 4],   // diagonal (CCW from outside)
+                        [2, 0, 3, 5]    // left (x=0, CCW from left)
                     ]
                 );
 
-                // Triangle 2: top-right
+                // Prism 2: top-right triangle
+                // Points: 0-2 bottom, 3-5 top (corresponding vertices)
                 polyhedron(
                     points = [
-                        [cell_width, 0, 0],
-                        [cell_width, cell_height, 0],
-                        [0, cell_height, 0],
-                        [cell_width, 0, h01],
-                        [cell_width, cell_height, h11],
-                        [0, cell_height, h10]
+                        [cell_width, 0, 0],           // 0: bottom-front-right
+                        [cell_width, cell_height, 0], // 1: bottom-back-right
+                        [0, cell_height, 0],          // 2: bottom-back-left
+                        [cell_width, 0, h01],         // 3: top-front-right
+                        [cell_width, cell_height, h11], // 4: top-back-right
+                        [0, cell_height, h10]         // 5: top-back-left
                     ],
                     faces = [
-                        [0, 1, 2],      // bottom
-                        [3, 5, 4],      // top
-                        [0, 3, 4, 1],   // front
-                        [1, 4, 5, 2],   // right
-                        [2, 5, 3, 0]    // left
+                        [0, 2, 1],      // bottom (CCW from below)
+                        [3, 4, 5],      // top (CCW from above)
+                        [0, 1, 4, 3],   // right (x=cell_width, CCW from right)
+                        [1, 2, 5, 4],   // back (y=cell_height, CCW from back)
+                        [2, 0, 3, 5]    // diagonal (CCW from outside)
                     ]
                 );
             }}
