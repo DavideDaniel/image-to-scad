@@ -47,6 +47,24 @@
   - [x] 5.2: Create `.gitignore` for Python projects
   - [x] 5.3: Repository initialized on `main` branch
 
+### Review Follow-ups (AI)
+
+**HIGH Priority:**
+- [ ] [AI-Review][HIGH] Fix Dev Agent Record test count: claims 112 tests but actual is 149 [1-1-project-structure-setup.md:99]
+- [ ] [AI-Review][HIGH] Add test fixture files to tests/fixtures/images/ and tests/fixtures/expected/ per architecture.md
+- [ ] [AI-Review][HIGH] Create src/image_to_scad/templates/ directory with relief.scad.j2 OR update architecture to reflect inline generation
+
+**MEDIUM Priority:**
+- [ ] [AI-Review][MEDIUM] Create .github/workflows/ci.yml for GitHub Actions CI per architecture.md
+- [ ] [AI-Review][MEDIUM] Add sample images and outputs to examples/sample_images/ and examples/sample_outputs/
+- [ ] [AI-Review][MEDIUM] Create docs/examples/basic_usage.md per architecture.md
+- [ ] [AI-Review][MEDIUM] Update File List to include scripts/test_e2e.py and tests/integration/test_cli_integration.py
+
+**LOW Priority:**
+- [ ] [AI-Review][LOW] Update Dev Agent Record to accurately reflect architecture deviations
+- [ ] [AI-Review][LOW] Create LICENSE file with MIT license text
+- [ ] [AI-Review][LOW] Consider adding setup.py for backward compatibility (optional)
+
 ---
 
 ## Dev Notes
@@ -148,9 +166,10 @@ Story 1.1 was found to be already complete. The project structure exceeds the st
 |------|--------|--------|
 | 2026-01-08 | Story created | Amelia (Dev Agent) |
 | 2026-01-08 | Story verified complete - all structure already exists | Amelia (Dev Agent) |
+| 2026-01-09 | Code review: 10 action items added (3 HIGH, 4 MEDIUM, 3 LOW) | Code Review Agent |
 
 ---
 
 ## Status
 
-**Status:** done
+**Status:** in-progress
