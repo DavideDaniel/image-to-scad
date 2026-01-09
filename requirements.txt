@@ -1,0 +1,16 @@
+# Production dependencies for image-to-scad
+# Install with: pip install -r requirements.txt
+
+# ML Framework
+torch>=2.0
+transformers>=4.35
+
+# Image Processing
+Pillow>=10.0
+opencv-python>=4.8
+
+# Numerical Computing
+numpy>=1.24
+
+# Model Distribution
+huggingface-hub>=0.20

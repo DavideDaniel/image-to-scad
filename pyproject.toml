@@ -1,0 +1,164 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "image-to-scad"
+version = "0.1.0"
+description = "AI-powered image to OpenSCAD converter for 3D relief models"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "David"}
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+keywords = [
+    "openscad",
+    "3d-printing",
+    "depth-estimation",
+    "image-processing",
+    "ai",
+    "relief",
+    "stl",
+]
+dependencies = [
+    "torch>=2.0",
+    "transformers>=4.35",
+    "Pillow>=10.0",
+    "opencv-python>=4.8",
+    "numpy>=1.24",
+    "huggingface-hub>=0.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+image-to-scad = "image_to_scad.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/david/image-to-ai-to-stil"
+Documentation = "https://github.com/david/image-to-ai-to-stil#readme"
+Repository = "https://github.com/david/image-to-ai-to-stil"
+Issues = "https://github.com/david/image-to-ai-to-stil/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.scad", "*.j2"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | build
+    | dist
+    | \.eggs
+    | _bmad
+    | _bmad-output
+)/
+'''
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "_bmad",
+    "_bmad-output",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["image_to_scad"]
+
+# Mypy configuration
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    "venv",
+    "_bmad",
+    "_bmad-output",
+    "build",
+    "dist",
+]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (require model download, deselect with '-m \"not slow\"')",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/image_to_scad"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
