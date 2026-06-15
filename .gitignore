@@ -114,6 +114,19 @@ Desktop.ini
 *.onnx
 models/
 
+# Image-to-3D pipeline: third-party clones (set up via docs/IMAGE_TO_STL.md)
+/TripoSR/
+/trellis-mac/
+/Hunyuan3D-2.1-mac/
+/multiview/
+
+# Generated meshes & QA renders (local outputs, not committed)
+*.obj
+*.glb
+**/renders*/
+examples/sample_outputs/
+SESSION_SUMMARY.md
+
 # Logs
 *.log
 logs/

@@ -10,6 +10,12 @@ Convert 2D images into parametric 3D relief models using AI depth estimation.
 
 **image-to-scad** transforms any image into editable OpenSCAD code for 3D printing. Unlike tools that produce static meshes, this generates parametric code you can customize after generation.
 
+> **New: full 3D image → printable STL pipeline.** Beyond the original depth-map →
+> OpenSCAD *relief* tool, this repo now includes a local pipeline that turns a photo
+> (or multiple views) into a true watertight, manifold **STL** using a modern
+> image-to-3D model (Hunyuan3D-2.1). See **[docs/IMAGE_TO_STL.md](docs/IMAGE_TO_STL.md)**
+> for setup and usage (`image_to_stl.py`).
+
 ### Key Features
 
 - **AI-Powered Depth Estimation** - Uses Intel DPT-Hybrid-MiDaS model for accurate depth perception
