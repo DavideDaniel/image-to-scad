@@ -22,9 +22,12 @@ from PIL import Image
 from scipy import ndimage
 
 
-def _foreground_mask(arr):
+def _foreground_mask(arr, thresh=90):
     """Boolean foreground mask. Uses alpha if present, else segments from the
-    background colour sampled at the image corners."""
+    background colour sampled at the image corners. The threshold is set high
+    enough to reject soft contact shadows (light grey ~ background) while keeping
+    a saturated subject — shadows left in create flared bases / tendril artifacts
+    in the 3D reconstruction."""
     if arr.shape[2] == 4 and arr[:, :, 3].min() < 250:
         return arr[:, :, 3] > 30
     rgb = arr[:, :, :3].astype(int)
@@ -32,7 +35,7 @@ def _foreground_mask(arr):
     corners = np.stack([rgb[0, 0], rgb[0, w - 1], rgb[h - 1, 0], rgb[h - 1, w - 1]])
     bg = np.median(corners, axis=0)
     dist = np.abs(rgb - bg).sum(axis=2)
-    return dist > 40
+    return dist > thresh
 
 
 def _order_boxes(boxes):
@@ -91,6 +94,7 @@ def keyout_background(im):
     if arr.shape[2] == 4 and arr[:, :, 3].min() < 250:
         return im  # already has a usable alpha mask
     mask = _foreground_mask(arr)
+    mask = ndimage.binary_opening(mask, iterations=2)   # drop thin shadow skirts
     mask = ndimage.binary_closing(mask, iterations=2)
     mask = ndimage.binary_fill_holes(mask)
     out = arr.copy()
