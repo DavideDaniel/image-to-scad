@@ -123,6 +123,24 @@ def _repair_gentle(mesh):
         mesh.remove_unreferenced_vertices()
         trimesh.repair.fill_holes(mesh)
 
+    # Close any residual boundary holes (trimesh.fill_holes only handles simple
+    # ones). Prefer pymeshlab's robust hole-closer when available.
+    if not mesh.is_watertight:
+        try:
+            import pymeshlab
+            ms = pymeshlab.MeshSet()
+            ms.add_mesh(pymeshlab.Mesh(np.asarray(mesh.vertices), np.asarray(mesh.faces)))
+            ms.meshing_repair_non_manifold_edges()
+            ms.meshing_close_holes(maxholesize=300)
+            m = ms.current_mesh()
+            mesh = trimesh.Trimesh(m.vertex_matrix(), m.face_matrix(), process=True)
+        except Exception as e:
+            print(f"  (pymeshlab close-holes unavailable: {e}); trimesh fill only")
+            for _ in range(3):
+                if mesh.is_watertight:
+                    break
+                trimesh.repair.fill_holes(mesh)
+
     trimesh.repair.fix_normals(mesh)
     return mesh
 
