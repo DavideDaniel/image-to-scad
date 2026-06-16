@@ -123,6 +123,18 @@ $PY image_to_stl.py --front f.png --back b.png --left l.png --right r.png \
 | `--sheet` + `--layout` + `--order` | — | one composite image; grid e.g. `2x2`/`1x4`; view names in reading order |
 | `--render` | off | also write Blender QA views next to the STL |
 | `--dtype` | fp16 | `fp32` if you hit fp16 instability |
+| `--base-cut` | none | slice a flat print base off one face (`auto`/`z-`/`z+`/…); also trims tendrils below it |
+| `--base-cut-mm` | 1.0 | how much to slice off the base-cut face, in mm |
+
+### Flat base for printing (`--base-cut`)
+Feed-forward 3D models output a closed solid; for a relief/nameplate the back
+isn't perfectly flat, so it won't sit cleanly on the bed and can have thin
+tendril artifacts hanging off the base. `--base-cut auto --base-cut-mm 1.5`
+slices a thin sliver off the flat "back" face and caps it — giving a flat print
+seat and removing those tendrils in one step. Use an explicit face (`z-`, `y-`,
+…) if `auto` picks the wrong side (verify in the `--render` output).
+*Note:* this won't separate the letters into individual pieces with open gaps —
+that's CAD/parametric modeling, not image-to-3D reconstruction.
 
 ### Getting good multi-view inputs
 - Provide **canonical, head-on angles**: true front, back, left profile, right profile

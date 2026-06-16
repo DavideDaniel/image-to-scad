@@ -114,6 +114,12 @@ def main():
     p.add_argument("--keep-bg", action="store_true", help="don't key out the sheet background")
     p.add_argument("--no-rembg", action="store_true", help="skip background removal on inputs")
     p.add_argument("--render", action="store_true", help="also render Blender QA views")
+    p.add_argument("--base-cut", choices=["none", "auto", "x-", "x+", "y-", "y+", "z-", "z+"],
+                   default="none",
+                   help="Slice a flat print base off one face (also trims tendrils). "
+                        "'auto' = the flat back of a relief/nameplate")
+    p.add_argument("--base-cut-mm", type=float, default=1.0,
+                   help="How much to slice off the --base-cut face, in mm (default: 1.0)")
     args = p.parse_args()
 
     explicit = {v: getattr(args, v) for v in VIEW_NAMES if getattr(args, v)}
@@ -135,7 +141,8 @@ def main():
 
     print("Finishing (gentle, watertight)...")
     finish(str(raw_obj), str(out.with_suffix(".stl")), args.size_mm,
-           min_component_frac=0.02, method="gentle", res=400, close_iter=2)
+           min_component_frac=0.02, method="gentle", res=400, close_iter=2,
+           base_cut=args.base_cut, base_cut_mm=args.base_cut_mm)
 
     if args.render:
         rdir = out.with_name(out.stem + "_renders")

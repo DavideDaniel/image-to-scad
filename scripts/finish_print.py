@@ -154,8 +154,43 @@ def _repair_meshfix(mesh):
     return out
 
 
+def _base_cut(mesh, face, mm):
+    """Slice `mm` off one face and cap the cut — gives a flat print-bed seating
+    surface and lops off thin tendrils that hang below that plane. `face` is one
+    of x-,x+,y-,y+,z-,z+ (the face that rests on the print bed), or 'auto' = the
+    flat 'back' slab of a relief/nameplate (thinnest axis, most outward flat area)."""
+    if face == "auto":
+        # Thinnest axis = depth (letters vs back). The print-bed "back" is the
+        # FLATTER side: its outward-facing surface sits at a more consistent
+        # depth than the relief/letter side. Pick the side whose outward faces
+        # have the lower depth spread.
+        axis = int(np.argmin(mesh.extents))
+        fc = mesh.triangles_center[:, axis]
+        fn = mesh.face_normals[:, axis]
+
+        def spread(mask):
+            pos = fc[mask]
+            return float(pos.std()) if len(pos) > 10 else np.inf
+        lo_spread = spread(fn < -0.7)   # faces pointing -axis (the -side surface)
+        hi_spread = spread(fn > 0.7)    # faces pointing +axis (the +side surface)
+        sign = "-" if lo_spread <= hi_spread else "+"
+        face = "xyz"[axis] + sign
+    axis = {"x": 0, "y": 1, "z": 2}[face[0]]
+    sign = face[1]
+    normal = np.zeros(3)
+    if sign == "-":
+        normal[axis] = 1.0          # keep the +axis side
+        origin = mesh.bounds[0].copy(); origin[axis] += mm
+    else:
+        normal[axis] = -1.0         # keep the -axis side
+        origin = mesh.bounds[1].copy(); origin[axis] -= mm
+    cut = mesh.slice_plane(origin, normal, cap=True)
+    print(f"  base-cut: sliced {mm} mm off {face} face")
+    return cut
+
+
 def finish(input_path, output_path, target_mm, min_component_frac, method, res, close_iter,
-           poisson_depth=10, density_quantile=0.03):
+           poisson_depth=10, density_quantile=0.03, base_cut="none", base_cut_mm=1.0):
     print(f"Loading: {input_path}")
     mesh = trimesh.load(input_path, force="mesh")
     print(f"  raw:      {_diag(mesh)}")
@@ -182,6 +217,9 @@ def finish(input_path, output_path, target_mm, min_component_frac, method, res, 
     if target_mm and target_mm > 0:
         mesh.apply_scale(target_mm / float(mesh.extents.max()))
         print(f"  scaled:   longest axis -> {target_mm} mm (size = {np.round(mesh.extents, 2)} mm)")
+
+    if base_cut and base_cut != "none":
+        mesh = _base_cut(mesh, base_cut, base_cut_mm)
 
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -214,10 +252,17 @@ def main():
                    help="[poisson] octree depth; higher = more detail (default: 10)")
     p.add_argument("--density-quantile", type=float, default=0.03,
                    help="[poisson] trim this fraction of lowest-confidence verts (default: 0.03)")
+    p.add_argument("--base-cut", choices=["none", "auto", "x-", "x+", "y-", "y+", "z-", "z+"],
+                   default="none",
+                   help="Slice a sliver off one face to form a flat print base (also trims "
+                        "tendrils below it). 'auto' = the flat 'back' of a relief/nameplate "
+                        "(default: none)")
+    p.add_argument("--base-cut-mm", type=float, default=1.0,
+                   help="How much to slice off the --base-cut face, in mm (default: 1.0)")
     args = p.parse_args()
     ok = finish(args.input, args.output, args.target_mm, args.min_component_frac,
                 args.method, args.res, args.close_iter,
-                args.poisson_depth, args.density_quantile)
+                args.poisson_depth, args.density_quantile, args.base_cut, args.base_cut_mm)
     raise SystemExit(0 if ok else 1)
 
 
