@@ -141,4 +141,8 @@ temp/
 # _bmad-output/
 
 # Claude Code
-.claude/
+.claude/*
+!.claude/skills/
+
+# Generated model outputs (STL/OBJ/blend/renders)
+outputs/
