@@ -2,184 +2,100 @@
 
 ## Project Overview
 
-**image-to-ai-to-stil** is an AI-powered CLI tool that converts 2D images into parametric, editable OpenSCAD code suitable for 3D printing. It uses Intel's DPT-Hybrid-MiDaS model for depth estimation.
+This project turns **images into printable 3D models (STL), fully locally**, via two
+complementary pipelines. There is no cloud dependency, no telemetry, and no data ever
+leaves the machine.
 
-### Key Differentiators
-- **Parametric Output** - Generated OpenSCAD code is customizable, not static meshes
-- **Local Processing** - No cloud dependencies, no API fees, complete privacy
-- **Open Source** - MIT licensed
+> **History note:** the repo began as *image-to-scad*, a depth-map → OpenSCAD relief
+> CLI (`src/image_to_scad/`). That product was removed in July 2026 after the tracks
+> below proved to be the better realization of the same goal ("images → parametric,
+> editable models"). Its code, tests, and BMAD planning artifacts live in git history
+> before that removal — do not resurrect them or "fix" references to them.
 
-## Tech Stack
+## The Two Tracks (route by object type)
 
-- **Language:** Python 3.9+
-- **ML Framework:** PyTorch 2.0+
-- **Model:** Intel DPT-Hybrid-MiDaS (via Hugging Face Transformers)
-- **Image Processing:** Pillow, OpenCV
-- **CLI:** argparse (stdlib)
-- **Testing:** pytest
-- **Formatting:** black, ruff, mypy
+1. **Component-model track — PREFERRED for functional objects** (stands, shelves,
+   docks, organizers): anything decomposable into axis-aligned boxes and cylinders,
+   including rotational shapes (discs, posts, trays, drums).
+   Photos supply *measurements and design intent only*; the model is an editable
+   `component-plan/v0` JSON built deterministically into an STL by headless Blender.
+   - Docs: `docs/component-model-workflow.md` (human) and
+     `.claude/skills/component-model/SKILL.md` (agent skill — use it).
+   - Scripts: `scripts/measure_views.py`, `scripts/blender_build_components.py`,
+     `scripts/split_views.py`, plus modular extras (`blender_build_link_clip.py`,
+     `blender_preview_stack.py`).
 
-## Project Structure
-
-```
-src/image_to_scad/
-├── __init__.py          # Package exports, version
-├── __main__.py          # Entry point for python -m
-├── cli.py               # Command-line interface
-├── converter.py         # Pipeline orchestration
-├── config.py            # Configuration dataclasses
-├── exceptions.py        # Custom exception hierarchy
-├── pipeline/
-│   ├── image_loader.py      # Image loading and validation
-│   ├── depth_estimator.py   # DPT model integration
-│   ├── depth_analyzer.py    # Depth map processing
-│   └── scad_generator.py    # OpenSCAD code generation
-├── exporters/
-│   └── stl_exporter.py      # OpenSCAD CLI integration
-└── utils/
-    ├── file_utils.py        # File I/O helpers
-    └── logging.py           # Logging configuration
-```
+2. **AI-mesh track — for organic/sculptural shapes only** (figures, freeform objects):
+   image(s) → Hunyuan3D-2.1 (or TRELLIS) → mesh finishing → STL.
+   - Docs: `docs/IMAGE_TO_STL.md`; entry point `image_to_stl.py` (run with the
+     Hunyuan venv, not the project venv).
+   - Finishing: clean Hunyuan meshes → `scripts/finish_print.py --method gentle`;
+     broken-but-detailed meshes (TRELLIS) → `scripts/blender_finish.py`.
 
 ## Architecture Decisions
 
-### ADR-001: Modular Pipeline
-Processing is implemented as independent, composable modules with Protocol interfaces for testability.
+### ADR-001: Blender is the geometry backend (settled 2026-07)
+CSG assembly (`scripts/blender_build_components.py`) and mesh repair
+(`scripts/blender_finish.py`, OpenVDB voxel remesh) run in headless Blender. Chosen
+after head-to-head tests over OpenSCAD CSG (unusably slow with many primitives) and
+over trimesh/pymeshlab repair (`poisson`/`voxel`/`meshfix` destroy detail — a TRELLIS
+mug holder that Blender rescued cleanly, 60K boundary edges → 72 with detail intact,
+came out a melted blob from every trimesh path). The trimesh repair experiments were
+deleted; do not reintroduce them. Requires `blender` on PATH (`brew install blender`).
+Exception: clean Hunyuan SDF meshes need only `finish_print.py --method gentle`.
 
-### ADR-002: Dataclasses for Configuration
-All configuration uses Python dataclasses with type hints and default values.
+### ADR-002: Component-plan JSON is the parametric model format
+Component-track models are defined by an editable `component-plan/v0` JSON
+(axis-aligned boxes + cylinders; components unioned in order, then cuts subtracted).
+Images are never reconstructed into geometry directly — they only anchor measurements.
+**Never write per-object generator Python** — author or edit the plan JSON.
+(`scripts/component_plan_from_stand_images.py` predates this decision; it is kept
+only as a worked example of one object class.)
 
-### ADR-003: Custom Exception Hierarchy
-```python
-ImageToScadError (base)
-├── ImageLoadError
-├── DepthEstimationError
-├── OpenSCADError
-└── STLExportError
-```
+## Environments
 
-### ADR-004: OpenSCAD CLI for STL
-STL rendering uses OpenSCAD's CLI rather than implementing mesh generation directly.
-
-### ADR-005: Blender is the geometry backend for the 3D tracks (settled 2026-07)
-Both 3D-model tracks (see "3D Generation Tracks" below) run headless Blender:
-`scripts/blender_build_components.py` for CSG assembly and `scripts/blender_finish.py`
-(OpenVDB voxel remesh) for mesh repair. This was chosen after head-to-head tests over
-OpenSCAD CSG (too slow for many primitives), and over trimesh/pymeshlab repair
-(`poisson`/`voxel`/`meshfix` destroy detail on broken meshes — a TRELLIS mug holder
-that Blender rescued cleanly came out a melted blob from every trimesh path). The
-trimesh-based experiments were removed; do not reintroduce them. Requires `blender`
-on PATH (`brew install blender`). Exception: clean Hunyuan meshes need only
-`scripts/finish_print.py --method gentle`.
-
-### ADR-006: Component-plan JSON is the parametric model format
-Component-track models are defined by an editable `component-plan/v0` JSON (axis-aligned
-boxes + cylinders; unions, then cuts) built deterministically by
-`scripts/blender_build_components.py`. Reference images supply *measurements and design
-intent only*. Never write per-object generator Python — author or edit the plan JSON.
-(`scripts/component_plan_from_stand_images.py` predates this decision and is kept only
-as a worked example.)
-
-## 3D Generation Tracks
-
-Besides the core depth-relief CLI (`src/image_to_scad/`), the repo has two
-image→3D-model pipelines. Route by object type:
-
-1. **Component-model track** — PREFERRED for functional objects (stands, shelves,
-   docks, organizers): anything decomposable into axis-aligned boxes and cylinders,
-   including rotational shapes (discs, posts, trays). Photos → measured proportions
-   (`scripts/measure_views.py`) → plan JSON → Blender CSG → STL.
-   Docs: `docs/component-model-workflow.md`; skill: `.claude/skills/component-model`.
-2. **AI-mesh track** — for organic/sculptural shapes only. Image(s) → Hunyuan3D-2.1
-   (or TRELLIS) → mesh finishing per ADR-005. Docs: `docs/IMAGE_TO_STL.md`.
-
-## Key Data Models
-
-```python
-@dataclass
-class ConversionConfig:
-    base_thickness: float = 2.0      # mm
-    max_height: float = 15.0         # mm
-    model_width: float = 100.0       # mm
-    detail_level: float = 1.0        # 0.5-2.0
-    smoothing: bool = True
-    invert_depth: bool = False
-
-@dataclass
-class HeightData:
-    heights: np.ndarray              # 2D array (mm)
-    width_mm: float
-    height_mm: float
-    resolution: Tuple[int, int]
-```
-
-## Code Style
-
-- PEP 8 formatting with black
-- Type hints on all public functions
-- Docstrings on all classes and public methods
-- Maximum line length: 100 characters
-- Use Protocol classes for interfaces
-
-## Testing
-
-- **Unit tests:** `tests/unit/` - Test individual components with mocks
-- **Integration tests:** `tests/integration/` - Test pipeline stages together
-- **Fixtures:** Small test images (64x64, 128x128) in `tests/fixtures/`
-- **Coverage target:** 90% for pipeline stages
-
-Run tests:
-```bash
-pytest                          # All tests
-pytest tests/unit/              # Unit tests only
-pytest -v --tb=short            # Verbose with short tracebacks
-```
+- **Project venv `venv/`** — Pillow, OpenCV, numpy, trimesh, scipy
+  (`requirements.txt`). Used by `measure_views.py`, `split_views.py`, and mesh
+  verification one-liners. The system `python3` does NOT have these.
+- **Blender** (`brew install blender`) — runs all `scripts/blender_*.py` headless.
+- **AI-mesh venvs** — `Hunyuan3D-2.1-mac/.venv` and `trellis-mac/.venv` (git-ignored,
+  fetched per `docs/IMAGE_TO_STL.md`; heavy deps in `requirements-shape.txt`).
 
 ## Common Commands
 
 ```bash
-# Install in development mode
-pip install -e ".[dev]"
+# Measure object proportions from photos (anchor one real dimension)
+venv/bin/python scripts/measure_views.py front=f.png top=t.png --width-mm 250
 
-# Run the tool
-image-to-scad input.jpg                    # Basic conversion
-image-to-scad input.jpg -o output.scad     # Custom output path
-image-to-scad input.jpg --width 80 --max-height 20  # With parameters
+# Build a plan JSON into STL/OBJ/blend + QA renders
+blender --background --python scripts/blender_build_components.py -- \
+    plan.json model.stl --render-dir renders
 
-# Development
-black src/ tests/                # Format code
-ruff check src/ tests/           # Lint
-mypy src/                        # Type check
-pytest                           # Run tests
+# Verify printability
+venv/bin/python -c "import trimesh; m=trimesh.load('model.stl'); \
+print(m.is_watertight, m.body_count, m.extents)"
+
+# Rescue a broken-but-detailed AI mesh
+blender --background --python scripts/blender_finish.py -- in.obj out.stl --res 384
+
+# AI-mesh generation (organic shapes; slow, ~15-20 min on MPS)
+./Hunyuan3D-2.1-mac/.venv/bin/python image_to_stl.py photo.png -o out --size-mm 120
 ```
 
-## Planning Artifacts
+## Hard Constraints
 
-Located in `_bmad-output/planning-artifacts/`:
-- `prd.md` - Product Requirements (31 FRs, 24 NFRs)
-- `architecture.md` - Architecture decisions and component design
-- `epics.md` - Epic and story breakdown (4 epics, 14 stories)
+- **DO NOT** write per-object geometry generators — the plan JSON is the model (ADR-002).
+- **DO NOT** reintroduce trimesh/pymeshlab mesh repair (ADR-001).
+- **DO NOT** transmit any data externally; everything runs locally.
+- **DO** overlap touching plan components by ≥0.4 mm (coplanar faces → boolean
+  slivers, worse on Blender 5.x); cutters must poke ≥1 mm past pierced faces.
+- **DO** keep generated artifacts out of git — `outputs/` is git-ignored except
+  hand-picked example plan JSONs (`git add -f`).
 
-## Implementation Status
+## Worked Examples
 
-The project has completed planning phase. Implementation should follow the epic order:
-1. **Epic 1:** Image to OpenSCAD Core (6 stories) - Basic conversion pipeline
-2. **Epic 2:** Customizable 3D Output (3 stories) - Parameter customization
-3. **Epic 3:** Complete CLI Experience (3 stories) - Help, progress, output paths
-4. **Epic 4:** STL Export & Printing (2 stories) - OpenSCAD CLI integration
-
-## Performance Targets
-
-- Depth estimation: <20 seconds on CPU
-- Code generation: <5 seconds
-- Total end-to-end: <30 seconds (excluding STL render)
-- Memory: <4GB during processing
-
-## Important Constraints
-
-- **DO NOT** add features not in the PRD
-- **DO NOT** transmit any data externally
-- **DO NOT** add telemetry or tracking
-- **DO** follow the exact project structure
-- **DO** use dataclasses for configuration
-- **DO** implement Protocol classes for testability
+- `outputs/component_mug_shelf_stackable_poc/stand_plan.json` — 12-component mug
+  shelf with wells, side sockets, stacking feet (photos in
+  `examples/sample_images/stand_multiview/`).
+- `outputs/circular_shelf_poc/plan.json` — rotational two-tier shelf from one
+  AI-generated 2×2 view sheet (`examples/sample_images/circular_shelf_3dprint.png`).
