@@ -157,9 +157,19 @@ that's CAD/parametric modeling, not image-to-3D reconstruction.
 | `hunyuan_compat/` — `hy3dgen` shim for the 2mv model | |
 | `requirements-shape.txt` | |
 
-## 5. Finishing methods (`scripts/finish_print.py`)
-- **`gentle`** (default) — for clean SDF meshes (Hunyuan): only removes the few faces
-  causing non-manifold edges, fills tiny holes. Preserves all detail. Used by `image_to_stl.py`.
-- **`poisson` / `voxel` / `meshfix`** — heavier repairs for messy meshes (e.g. raw
-  TRELLIS output). `voxel` roughens thin walls; `meshfix` can flatten detail; `poisson`
-  smooths. Use only when `gentle` leaves holes.
+## 5. Finishing methods (settled 2026-07: Blender is the repair backend)
+- **Clean SDF meshes (Hunyuan, the default path):** `scripts/finish_print.py --method gentle`
+  — only removes the few faces causing non-manifold edges, fills tiny holes, preserves
+  all detail. Used automatically by `image_to_stl.py`. Nothing heavier is needed here.
+- **Broken-but-detailed meshes (e.g. raw TRELLIS output):** `scripts/blender_finish.py`
+  — headless Blender OpenVDB voxel remesh:
+  ```bash
+  blender --background --python scripts/blender_finish.py -- \
+      broken.obj fixed.stl --res 384 --target-mm 120
+  ```
+  Reconstructs a watertight manifold from a signed-distance field at fine resolution,
+  preserving the pockets and thin walls that trimesh-based repairs flood-fill shut.
+  Validated on a TRELLIS mug holder: 60K boundary + 44K non-manifold edges → 72/0,
+  detail intact — where every trimesh path (`poisson`/`voxel`/`meshfix`) melted it
+  into a blob. Those trimesh methods still exist inside `finish_print.py` but are
+  deprecated for repair; do not reach for them before `blender_finish.py`.

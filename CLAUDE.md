@@ -61,6 +61,38 @@ ImageToScadError (base)
 ### ADR-004: OpenSCAD CLI for STL
 STL rendering uses OpenSCAD's CLI rather than implementing mesh generation directly.
 
+### ADR-005: Blender is the geometry backend for the 3D tracks (settled 2026-07)
+Both 3D-model tracks (see "3D Generation Tracks" below) run headless Blender:
+`scripts/blender_build_components.py` for CSG assembly and `scripts/blender_finish.py`
+(OpenVDB voxel remesh) for mesh repair. This was chosen after head-to-head tests over
+OpenSCAD CSG (too slow for many primitives), and over trimesh/pymeshlab repair
+(`poisson`/`voxel`/`meshfix` destroy detail on broken meshes — a TRELLIS mug holder
+that Blender rescued cleanly came out a melted blob from every trimesh path). The
+trimesh-based experiments were removed; do not reintroduce them. Requires `blender`
+on PATH (`brew install blender`). Exception: clean Hunyuan meshes need only
+`scripts/finish_print.py --method gentle`.
+
+### ADR-006: Component-plan JSON is the parametric model format
+Component-track models are defined by an editable `component-plan/v0` JSON (axis-aligned
+boxes + cylinders; unions, then cuts) built deterministically by
+`scripts/blender_build_components.py`. Reference images supply *measurements and design
+intent only*. Never write per-object generator Python — author or edit the plan JSON.
+(`scripts/component_plan_from_stand_images.py` predates this decision and is kept only
+as a worked example.)
+
+## 3D Generation Tracks
+
+Besides the core depth-relief CLI (`src/image_to_scad/`), the repo has two
+image→3D-model pipelines. Route by object type:
+
+1. **Component-model track** — PREFERRED for functional objects (stands, shelves,
+   docks, organizers): anything decomposable into axis-aligned boxes and cylinders,
+   including rotational shapes (discs, posts, trays). Photos → measured proportions
+   (`scripts/measure_views.py`) → plan JSON → Blender CSG → STL.
+   Docs: `docs/component-model-workflow.md`; skill: `.claude/skills/component-model`.
+2. **AI-mesh track** — for organic/sculptural shapes only. Image(s) → Hunyuan3D-2.1
+   (or TRELLIS) → mesh finishing per ADR-005. Docs: `docs/IMAGE_TO_STL.md`.
+
 ## Key Data Models
 
 ```python
