@@ -83,6 +83,9 @@ venv/bin/python scripts/check_printability.py model.stl
 blender --background --python scripts/blender_build_components.py -- \
     plan.json model.stl --parts-dir parts
 
+# Rescale a plan to a bed WITHOUT breaking joint clearances (never scale STLs in slicer)
+venv/bin/python scripts/scale_plan.py plan.json plan_scaled.json --fit-bed 220 220 250
+
 # Rescue a broken-but-detailed AI mesh
 blender --background --python scripts/blender_finish.py -- in.obj out.stl --res 384
 

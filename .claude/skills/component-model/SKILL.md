@@ -75,6 +75,10 @@ blender --background --python scripts/blender_build_components.py -- \
      to lock rotation unless the assembly is indexed anyway.
    - Build with `--parts-dir out/parts`: per-part STLs + renders plus an
      `assembled_*` preview render — read it to confirm the parts register correctly.
+10. **Bed fit and post-print fit belong to the `print-fit` skill.** Never rescale
+    STLs in the slicer for a model with an assembly — clearances are absolute;
+    `scripts/scale_plan.py` rescales the plan keeping tolerances fixed, and the
+    print-fit skill covers the design-rule re-review and clearance calibration.
 
 ## Plan schema (component-plan/v0; /v1 adds `assembly`)
 

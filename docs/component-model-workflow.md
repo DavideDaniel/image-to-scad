@@ -162,6 +162,22 @@ Worked example: `outputs/circular_shelf_poc/plan.json` — as one piece the shel
 `base` (posts up, pegs on top) and `tray` (flat, sockets underneath) both parts
 check out at ~0% overhang with no supports needed.
 
+### 8. Rescale for a bed without breaking joints
+
+Never uniformly scale assembly STLs in the slicer: joint clearances are absolute
+printer tolerances, so scaling jams (down) or loosens (up) every fit. Rescale the
+plan instead — geometry scales, clearances don't:
+
+```bash
+venv/bin/python scripts/scale_plan.py plan.json plan_scaled.json --fit-bed 220 220 250
+```
+
+Then re-review absolute design rules on the scaled plan (pegs ≥2.5 mm radius, walls
+≥3 mm, joint engagement depths, functional dimensions like wells re-pinned to their
+real-world size), rebuild with `--parts-dir`, and re-run the checker with your
+`--bed-mm`. After a test print, tune each joint's `clearance` in ±0.05 mm steps
+(tight → increase, rattling → decrease).
+
 ## Hard-won rules
 
 - **Overlap, never kiss.** Touching components must interpenetrate by ≥0.4 mm;
