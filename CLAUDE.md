@@ -45,8 +45,13 @@ deleted; do not reintroduce them. Requires `blender` on PATH (`brew install blen
 Exception: clean Hunyuan SDF meshes need only `finish_print.py --method gentle`.
 
 ### ADR-002: Component-plan JSON is the parametric model format
-Component-track models are defined by an editable `component-plan/v0` JSON
+Component-track models are defined by an editable component-plan JSON
 (axis-aligned boxes + cylinders; components unioned in order, then cuts subtracted).
+Schema v1 adds an optional `assembly` block — named parts + peg/socket joints — so a
+model can be built as separately printable pieces (`--parts-dir`) when
+`scripts/check_printability.py` flags overhangs, floating bodies, or bed overflow.
+Deciding the split (where, which orientation, joint placement) is plan-authoring
+judgment per the component-model skill, not code.
 Images are never reconstructed into geometry directly — they only anchor measurements.
 **Never write per-object generator Python** — author or edit the plan JSON.
 (`scripts/component_plan_from_stand_images.py` predates this decision; it is kept
@@ -71,9 +76,12 @@ venv/bin/python scripts/measure_views.py front=f.png top=t.png --width-mm 250
 blender --background --python scripts/blender_build_components.py -- \
     plan.json model.stl --render-dir renders
 
-# Verify printability
-venv/bin/python -c "import trimesh; m=trimesh.load('model.stl'); \
-print(m.is_watertight, m.body_count, m.extents)"
+# Verify printability (watertight, floating bodies, overhangs, bed fit)
+venv/bin/python scripts/check_printability.py model.stl
+
+# Build as separately printable parts (plan has an assembly block)
+blender --background --python scripts/blender_build_components.py -- \
+    plan.json model.stl --parts-dir parts
 
 # Rescue a broken-but-detailed AI mesh
 blender --background --python scripts/blender_finish.py -- in.obj out.stl --res 384

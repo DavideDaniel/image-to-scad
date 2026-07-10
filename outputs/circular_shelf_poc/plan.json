@@ -1,5 +1,5 @@
 {
-  "schema": "component-plan/v0",
+  "schema": "component-plan/v1",
   "units": "mm",
   "source_images": "examples/sample_images/circular_shelf_3dprint.png (2x2 grid, view_a canonical)",
   "design_intent": "two-tier round shelf: base disc, 3 rim posts at 90deg (open front), top tray with raised rim lip",
@@ -16,6 +16,21 @@
     ],
     "cuts": [
       {"name": "tray_recess", "type": "cylinder", "radius": 117, "depth": 11, "center": [0, 0, 159], "axis": "z", "vertices": 128}
-    ]
+    ],
+    "assembly": {
+      "note": "split to eliminate the unsupported tray-over-posts overhang: base+posts print upright, tray prints flat; pegs at the post tops index into sockets in the tray underside",
+      "parts": [
+        {"name": "base", "components": ["base_disc", "post_left", "post_right", "post_rear"]},
+        {"name": "tray", "components": ["tray_body"], "cuts": ["tray_recess"]}
+      ],
+      "joints": [
+        {"type": "peg", "name": "peg_left", "male": "base", "female": "tray", "clearance": 0.3,
+         "cylinder": {"radius": 4, "depth": 12, "center": [-108, 0, 143], "axis": "z"}},
+        {"type": "peg", "name": "peg_right", "male": "base", "female": "tray", "clearance": 0.3,
+         "cylinder": {"radius": 4, "depth": 12, "center": [108, 0, 143], "axis": "z"}},
+        {"type": "peg", "name": "peg_rear", "male": "base", "female": "tray", "clearance": 0.3,
+         "cylinder": {"radius": 4, "depth": 12, "center": [0, 108, 143], "axis": "z"}}
+      ]
+    }
   }
 }

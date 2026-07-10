@@ -117,6 +117,51 @@ blender --background --python scripts/blender_finish.py -- \
     model.stl model_printready.stl --res 384
 ```
 
+For a fuller report — floating bodies, overhang area beyond 45°, bed-contact /
+tip-over risk, bed fit:
+
+```bash
+venv/bin/python scripts/check_printability.py model.stl [--bed-mm 256 256 256]
+```
+
+### 7. Split into printable parts (schema v1 `assembly`)
+
+When the checker warns (heavy overhangs, floating pieces, doesn't fit the bed),
+split the model into separately printed parts that assemble with printed peg/socket
+joints, instead of accepting supports. Add an `assembly` block to the plan:
+
+```json
+"assembly": {
+  "parts": [
+    {"name": "base", "components": ["base_disc", "post_left", "post_right"]},
+    {"name": "tray", "components": ["tray_body"], "cuts": ["tray_recess"],
+     "rotate_deg": [0, 0, 0]}
+  ],
+  "joints": [
+    {"type": "peg", "name": "peg_left", "male": "base", "female": "tray", "clearance": 0.3,
+     "cylinder": {"radius": 4, "depth": 12, "center": [-108, 0, 143], "axis": "z"}}
+  ]
+}
+```
+
+- Each part is the union of its `components` minus its `cuts`. The `male` part
+  unions each joint cylinder as a peg; the `female` part subtracts it grown by
+  `clearance` (0.3 mm snug, 0.35 mm easy).
+- Joint cylinders are authored in **assembled coordinates** and must straddle the
+  interface: root ≥3 mm inside the male part, reach ≥5 mm into the female, with
+  ≥3 mm of wall left around the socket. Two or more pegs per interface prevent
+  rotation.
+- Split at natural component boundaries; pick each part's `rotate_deg` so its
+  largest flat face prints down.
+- Build with `--parts-dir out/parts`: exports `part_<name>.stl` per part (rotated,
+  dropped to the bed) plus per-part renders and an `assembled_*` preview render.
+  Re-run the checker on every part.
+
+Worked example: `outputs/circular_shelf_poc/plan.json` — as one piece the shelf has
+19.8% of its surface in >45° overhang (the tray hanging over the posts); split into
+`base` (posts up, pegs on top) and `tray` (flat, sockets underneath) both parts
+check out at ~0% overhang with no supports needed.
+
 ## Hard-won rules
 
 - **Overlap, never kiss.** Touching components must interpenetrate by ≥0.4 mm;

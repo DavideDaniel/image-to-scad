@@ -1,6 +1,6 @@
 ---
 name: component-model
-description: Build a parametric, printable 3D model (STL) of a rectilinear object from reference photos by authoring a component-plan JSON and iterating with visual feedback — no per-object code. Use when the user wants to turn photos/images of a boxy or functional object (stand, shelf, bracket, dock, organizer, holder) into an editable 3D model or STL, or asks to "model this from photos", "make a printable version of this", or to tweak dimensions of a previously component-modeled object. NOT for organic/curvy subjects (figures, animals, sculpted shapes) — route those to the AI-mesh path (Hunyuan3D/TRELLIS + scripts/blender_finish.py).
+description: Build a parametric, printable 3D model (STL) of a rectilinear object from reference photos by authoring a component-plan JSON and iterating with visual feedback — no per-object code. Use when the user wants to turn photos/images of a boxy or functional object (stand, shelf, bracket, dock, organizer, holder) into an editable 3D model or STL, or asks to "model this from photos", "make a printable version of this", or to tweak dimensions of a previously component-modeled object. ALSO use when a model has printability problems (floating parts, heavy overhangs, exceeds the bed) or the user asks to split a model into printable components that assemble — the plan's assembly block + check_printability.py handle that. NOT for organic/curvy subjects (figures, animals, sculpted shapes) — route those to the AI-mesh path (Hunyuan3D/TRELLIS + scripts/blender_finish.py).
 ---
 
 # Component model from images
@@ -59,8 +59,24 @@ blender --background --python scripts/blender_build_components.py -- \
 8. **Functional features on request**: mug wells, sockets + `scripts/blender_build_link_clip.py`
    connector clips, stacking feet/pockets — all are just more components/cuts in the plan.
    For fit between parts use 0.25–0.35 mm clearance per side.
+9. **Split into printable parts when the checker says so.** Run
+   `venv/bin/python scripts/check_printability.py model.stl` — it flags floating
+   bodies, overhang % beyond 45°, tip-over risk, and bed overflow. On FAIL/WARN,
+   add an `assembly` block (schema v1, below) instead of accepting supports. Decide
+   the split like a product designer, not mechanically:
+   - **Split at natural interfaces** (where distinct named components already meet),
+     never through the middle of a component.
+   - Each part must print well alone: pick `rotate_deg` so its largest flat face is
+     down and its own overhang ≈ 0. Re-run the checker on every part STL.
+   - **Joints**: peg/socket cylinders authored in assembled coordinates, straddling
+     the interface — root ≥3 mm inside the male part, enter ≥5 mm into the female,
+     leave ≥3 mm of wall around the socket. Radius ≈ 40–55% of the smaller mating
+     dimension. Clearance 0.3 mm (snug) to 0.35 (easy). Use ≥2 pegs per interface
+     to lock rotation unless the assembly is indexed anyway.
+   - Build with `--parts-dir out/parts`: per-part STLs + renders plus an
+     `assembled_*` preview render — read it to confirm the parts register correctly.
 
-## Plan schema (component-plan/v0)
+## Plan schema (component-plan/v0; /v1 adds `assembly`)
 
 ```json
 {
@@ -81,6 +97,28 @@ blender --background --python scripts/blender_build_components.py -- \
   }
 }
 ```
+
+Schema v1 may add `model.assembly` for split-for-print (built with `--parts-dir`):
+
+```json
+"assembly": {
+  "parts": [
+    {"name": "base", "components": ["base_disc", "post_left"], "cuts": [], "rotate_deg": [0, 0, 0]},
+    {"name": "tray", "components": ["tray_body"], "cuts": ["tray_recess"]}
+  ],
+  "joints": [
+    {"type": "peg", "name": "peg_left", "male": "base", "female": "tray", "clearance": 0.3,
+     "cylinder": {"radius": 4, "depth": 12, "center": [-108, 0, 143], "axis": "z"}}
+  ]
+}
+```
+
+Each part = union of its `components` minus its `cuts`; the male part unions each
+joint cylinder as a peg, the female part subtracts it grown by `clearance`. Parts are
+rotated by `rotate_deg`, dropped to Z=0, and exported as `part_<name>.stl` with
+per-part renders plus an assembled preview. The monolithic STL is still produced.
+Worked example: `outputs/circular_shelf_poc/plan.json` (19.8% overhang as one piece
+→ two parts at ~0%).
 
 - `size` is full extent `[X, Y, Z]`; `center` is the solid's centroid. Boxes are
   axis-aligned; cylinders point along `axis` (`"x"|"y"|"z"`, default `"z"`).
