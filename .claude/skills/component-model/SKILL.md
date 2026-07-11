@@ -73,6 +73,17 @@ blender --background --python scripts/blender_build_components.py -- \
      leave ≥3 mm of wall around the socket. Radius ≈ 40–55% of the smaller mating
      dimension. Clearance 0.3 mm (snug) to 0.35 (easy). Use ≥2 pegs per interface
      to lock rotation unless the assembly is indexed anyway.
+   - **Grown pegs vs loose dowels — check the print orientation of BOTH sides.**
+     A peg grown on a part becomes a horizontal cantilevered cylinder if that part
+     prints lying flat (overhang % stays tiny, but the slicer flags it and the
+     underside sags). When a part's best orientation would lay its pegs sideways,
+     switch to loose dowel-pin joinery: omit `male` from the joint (socket-only
+     cut), give both mating parts sockets, and add ONE representative pin as its
+     own part (`"leg_dowel_x4"` — user prints N copies; pins print standing, their
+     best orientation). Make one side press-fit (0.2) and the other slip-fit (0.3)
+     so the pin stays where you want it. NEVER also list a pin part as a joint's
+     `male` — re-unioning a cylinder onto its identical twin makes the EXACT
+     boolean explode into sliver shells.
    - Build with `--parts-dir out/parts`: per-part STLs + renders plus an
      `assembled_*` preview render — read it to confirm the parts register correctly.
 10. **Bed fit and post-print fit belong to the `print-fit` skill.** Never rescale
@@ -118,8 +129,10 @@ Schema v1 may add `model.assembly` for split-for-print (built with `--parts-dir`
 ```
 
 Each part = union of its `components` minus its `cuts`; the male part unions each
-joint cylinder as a peg, the female part subtracts it grown by `clearance`. Parts are
-rotated by `rotate_deg`, dropped to Z=0, and exported as `part_<name>.stl` with
+joint cylinder as a peg, the female part subtracts it grown by `clearance`. `male`
+is optional — omit it for loose-dowel joinery (the joint only cuts the female
+socket; the dowel itself is a component in its own part). Parts are rotated by
+`rotate_deg`, recentered, dropped to Z=0, and exported as `part_<name>.stl` with
 per-part renders plus an assembled preview. The monolithic STL is still produced.
 Worked example: `outputs/circular_shelf_poc/plan.json` (19.8% overhang as one piece
 → two parts at ~0%).

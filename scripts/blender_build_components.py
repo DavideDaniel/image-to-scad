@@ -300,9 +300,12 @@ def _export(obj: bpy.types.Object, stl_path: str, obj_path: str | None = None) -
         print(f"Wrote {obj_path}")
 
 
-def _drop_to_bed(obj: bpy.types.Object) -> None:
-    lo, _, _ = _bbox([obj])
+def _drop_to_bed(obj: bpy.types.Object, recenter_xy: bool = False) -> None:
+    lo, _, center = _bbox([obj])
     obj.location.z -= lo.z
+    if recenter_xy:
+        obj.location.x -= center.x
+        obj.location.y -= center.y
     bpy.context.view_layer.update()
 
 
@@ -349,7 +352,8 @@ def main() -> None:
         for part in assembly["parts"]:
             comp_specs = [by_name[n] for n in part["components"]]
             cut_specs = [cuts_by_name[n] for n in part.get("cuts", [])]
-            male = [j for j in joints if j["male"] == part["name"]]
+            # A joint may omit "male" (loose-dowel joinery): it then only cuts sockets.
+            male = [j for j in joints if j.get("male") == part["name"]]
             female = [j for j in joints if j["female"] == part["name"]]
             solid = _build_solid(material, comp_specs, cut_specs, male, female, bevel, f"part_{part['name']}")
 
@@ -367,7 +371,7 @@ def main() -> None:
                 solid.select_set(True)
                 bpy.context.view_layer.objects.active = solid
                 bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-            _drop_to_bed(solid)
+            _drop_to_bed(solid, recenter_xy=True)
 
             _export(solid, str(parts_dir / f"part_{part['name']}.stl"))
             _render_views([solid], str(parts_dir / "renders"), prefix=f"part_{part['name']}_")
