@@ -102,6 +102,83 @@ def _cylinder(
     return obj
 
 
+def _thread(
+    name: str,
+    major_radius: float,
+    pitch: float,
+    depth: float,
+    center: list[float],
+    axis: str = "z",
+    segments: int = 48,
+    grow: float = 0.0,
+) -> bpy.types.Object:
+    """Watertight external-thread solid (trapezoidal profile, FDM-friendly).
+
+    Thread depth is 0.4*pitch below major_radius. `grow` offsets all radii
+    outward (and lengthens the solid) to turn the same spec into a tapped
+    socket cutter with radial clearance. Ends taper to the minor radius so the
+    caps are flat disks.
+    """
+    thread_depth = 0.4 * pitch
+    minor = major_radius - thread_depth + grow
+    length = depth + 2 * grow
+    lead = 0.6 * pitch
+    rings_per_pitch = 24
+    n_rings = max(int(length / pitch * rings_per_pitch), 4) + 1
+
+    def profile(t: float) -> float:
+        # root flat, 45-ish rise, crest flat, fall
+        if t < 0.15 or t >= 0.85:
+            return 0.0
+        if t < 0.40:
+            return (t - 0.15) / 0.25
+        if t < 0.60:
+            return 1.0
+        return (0.85 - t) / 0.25
+
+    verts: list[tuple[float, float, float]] = []
+    for k in range(n_rings):
+        z = length * k / (n_rings - 1)
+        amp = max(0.0, min(1.0, min(z, length - z) / lead))
+        for i in range(segments):
+            theta = 2 * math.pi * i / segments
+            t = ((theta / (2 * math.pi)) * pitch + z) % pitch / pitch
+            r = minor + thread_depth * profile(t) * amp
+            verts.append((r * math.cos(theta), r * math.sin(theta), z - length / 2))
+    faces: list[tuple[int, ...]] = []
+    for k in range(n_rings - 1):
+        for i in range(segments):
+            a = k * segments + i
+            b = k * segments + (i + 1) % segments
+            faces.append((a, b, b + segments, a + segments))
+    bottom_center = len(verts)
+    verts.append((0.0, 0.0, -length / 2))
+    top_center = len(verts)
+    verts.append((0.0, 0.0, length / 2))
+    for i in range(segments):
+        faces.append((bottom_center, (i + 1) % segments, i))
+        base = (n_rings - 1) * segments
+        faces.append((top_center, base + i, base + (i + 1) % segments))
+
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    mesh.validate()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    bpy.context.view_layer.objects.active = obj
+    obj.location = center
+    if axis == "x":
+        obj.rotation_euler = (0.0, math.radians(90), 0.0)
+    elif axis == "y":
+        obj.rotation_euler = (math.radians(90), 0.0, 0.0)
+    elif axis != "z":
+        raise SystemExit(f"unsupported thread axis: {axis}")
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    return obj
+
+
 def _make_primitive(spec: dict, kind: str) -> bpy.types.Object:
     if spec["type"] == "box":
         return _cube(spec["name"], spec["size"], spec["center"])
@@ -113,6 +190,16 @@ def _make_primitive(spec: dict, kind: str) -> bpy.types.Object:
             spec["center"],
             int(spec.get("vertices", 128)),
             str(spec.get("axis", "z")),
+        )
+    if spec["type"] == "thread":
+        return _thread(
+            spec["name"],
+            float(spec["major_radius"]),
+            float(spec["pitch"]),
+            float(spec["depth"]),
+            spec["center"],
+            str(spec.get("axis", "z")),
+            int(spec.get("segments", 48)),
         )
     raise SystemExit(f"unsupported {kind} type: {spec['type']}")
 
@@ -167,11 +254,60 @@ def _repair_mesh(obj: bpy.types.Object) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.mesh.remove_doubles(threshold=0.0001)
+    bpy.ops.mesh.dissolve_degenerate(threshold=0.001)
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.mesh.delete_loose(use_verts=True, use_edges=True, use_faces=True)
+    bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.mesh.normals_make_consistent(inside=False)
     bpy.ops.mesh.select_all(action="DESELECT")
     bpy.ops.mesh.select_non_manifold()
     bpy.ops.mesh.fill_holes(sides=0)
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def _remove_sliver_shells(obj: bpy.types.Object) -> bpy.types.Object:
+    """Drop disconnected shells under 1% of the largest shell's volume.
+
+    Blender's EXACT boolean occasionally emits near-zero-volume sliver shells
+    (especially against helical thread meshes); they read as floating bodies.
+    Genuine features are protected by the overlap-never-kiss rule, so anything
+    this small is boolean debris.
+    """
+    import bmesh
+
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.separate(type="LOOSE")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    pieces = [o for o in bpy.context.selected_objects]
+    if len(pieces) <= 1:
+        return obj
+
+    volumes = []
+    for piece in pieces:
+        bm = bmesh.new()
+        bm.from_mesh(piece.data)
+        volumes.append(abs(bm.calc_volume(signed=True)))
+        bm.free()
+    largest = max(volumes)
+    main = pieces[volumes.index(largest)]
+    keep = []
+    for piece, volume in zip(pieces, volumes):
+        if volume >= 0.01 * largest:
+            keep.append(piece)
+        else:
+            print(f"removed sliver shell ({volume:.3f} mm^3) near {main.name}")
+            bpy.data.objects.remove(piece, do_unlink=True)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for piece in keep:
+        piece.select_set(True)
+    bpy.context.view_layer.objects.active = main
+    if len(keep) > 1:
+        bpy.ops.object.join()
+    return bpy.context.view_layer.objects.active
 
 
 def _bbox(objs: list[bpy.types.Object]) -> tuple[Vector, Vector, Vector]:
@@ -244,6 +380,18 @@ def _render_views(objs: list[bpy.types.Object], render_dir: str, prefix: str = "
 
 
 def _joint_cylinder(joint: dict, name: str, grow: float = 0.0) -> bpy.types.Object:
+    if "thread" in joint:
+        th = joint["thread"]
+        return _thread(
+            name,
+            float(th["major_radius"]),
+            float(th["pitch"]),
+            float(th["depth"]),
+            th["center"],
+            str(th.get("axis", "z")),
+            int(th.get("segments", 48)),
+            grow=grow,
+        )
     cyl = joint["cylinder"]
     return _cylinder(
         name,
@@ -278,12 +426,16 @@ def _build_solid(
     for cut in cuts:
         combined = _boolean_difference(combined, _make_primitive(cut, "cut"))
 
+    # Bevel before socket subtraction: beveling helical/tapped bore edges makes
+    # the EXACT solver emit sliver shells, and socket rims are better left sharp.
+    _add_bevel(combined, bevel)
+
     for joint in joints_female:
         socket = _joint_cylinder(joint, f"socket_{joint['name']}", grow=float(joint.get("clearance", 0.3)))
         combined = _boolean_difference(combined, socket)
 
-    _add_bevel(combined, bevel)
     _repair_mesh(combined)
+    combined = _remove_sliver_shells(combined)
     combined.name = name
     return combined
 
@@ -355,7 +507,8 @@ def main() -> None:
             # A joint may omit "male" (loose-dowel joinery): it then only cuts sockets.
             male = [j for j in joints if j.get("male") == part["name"]]
             female = [j for j in joints if j["female"] == part["name"]]
-            solid = _build_solid(material, comp_specs, cut_specs, male, female, bevel, f"part_{part['name']}")
+            part_bevel = float(part.get("bevel", bevel))
+            solid = _build_solid(material, comp_specs, cut_specs, male, female, part_bevel, f"part_{part['name']}")
 
             # Keep an assembled-pose copy for the preview render (hidden until then).
             preview = solid.copy()

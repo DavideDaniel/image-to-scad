@@ -73,6 +73,15 @@ blender --background --python scripts/blender_build_components.py -- \
      leave ≥3 mm of wall around the socket. Radius ≈ 40–55% of the smaller mating
      dimension. Clearance 0.3 mm (snug) to 0.35 (easy). Use ≥2 pegs per interface
      to lock rotation unless the assembly is indexed anyway.
+   - **Threaded joints** (type `"thread"` primitive / joint spec): only where one
+     side can physically rotate during assembly — spinnable pins (leveling feet,
+     studs screwed into a tapped socket) yes; two fixed parts (deck halves) never.
+     FDM rules: pitch ≥2 mm, thread depth is 0.4×pitch, radial clearance 0.25
+     (vertical tapped holes) to 0.3 (horizontal bores), and NEVER bevel a threaded
+     part (`"bevel": 0` on the part) — a bevel wider than the thread depth destroys
+     it and makes the EXACT solver shed slivers. A stud can be half threaded, half
+     smooth: overlap the smooth cylinder into the thread's end-taper zone, not the
+     full-crest zone (coincident radii break the boolean).
    - **Grown pegs vs loose dowels — check the print orientation of BOTH sides.**
      A peg grown on a part becomes a horizontal cantilevered cylinder if that part
      prints lying flat (overhang % stays tiny, but the slicer flags it and the
