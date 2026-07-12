@@ -61,7 +61,7 @@ When the user reports how printed parts mate, adjust the plan's joint
 
 | Printer | Material | Slip fit | Press fit | Notes |
 |---|---|---|---|---|
-| (none recorded yet — add rows as prints are tested) | | | | |
+| generic FDM (first-pass defaults, 2026-07-11) | any | 0.35 smooth bore | 0.2 | thread radial clearance: 0.35 vertical tapped bore, 0.45 horizontal tapped bore (sag); refine per printer after test prints |
 
 ## Rules of thumb
 

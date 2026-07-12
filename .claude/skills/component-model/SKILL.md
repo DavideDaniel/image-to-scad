@@ -82,6 +82,11 @@ blender --background --python scripts/blender_build_components.py -- \
      it and makes the EXACT solver shed slivers. A stud can be half threaded, half
      smooth: overlap the smooth cylinder into the thread's end-taper zone, not the
      full-crest zone (coincident radii break the boolean).
+     **Tap cutters must poke past the entry face by ≥ 0.6×pitch + 1 mm** — the
+     thread solid tapers to its minor radius over 0.6×pitch at each end, and if
+     that taper sits inside the material the socket mouth is an ungrooved ring no
+     screw can pass (it measures ~minor radius while the screw crest is major).
+     Verify with a cross-section 0.2 mm above the face: the groove must be there.
    - **Grown pegs vs loose dowels — check the print orientation of BOTH sides.**
      A peg grown on a part becomes a horizontal cantilevered cylinder if that part
      prints lying flat (overhang % stays tiny, but the slicer flags it and the
