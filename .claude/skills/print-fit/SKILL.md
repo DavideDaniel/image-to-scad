@@ -84,3 +84,9 @@ When the user reports how printed parts mate, adjust the plan's joint
   and may now be too shallow; deepen by editing the joint cylinder).
 - The plan is the source of truth: slicer scaling is only acceptable for
   single-piece models with no assembly, no threads, and no mating features.
+- **Outputs are immutable once printed (or shared).** Never rebuild over a parts
+  directory the user may have printed from — write each design revision to a new
+  versioned folder (`parts_v2_asprinted/`, `parts_v3_fixed/`), keep the plan
+  revision that produced each (git or a copy), and maintain a VERSIONS.md saying
+  which pins mate with which generation of sockets. Rescue pins must be authored
+  against the plan revision that was PRINTED, not the latest one.

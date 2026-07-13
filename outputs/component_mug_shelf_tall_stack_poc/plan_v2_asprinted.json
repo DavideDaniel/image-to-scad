@@ -1,0 +1,850 @@
+{
+  "schema": "component-plan/v1",
+  "units": "mm",
+  "design_intent": "stackable modular mug shelf (tall) - componentized: deck split at midline to fit the bed, legs printed flat, loose dowel-pin joinery (no part grows pegs, so flat parts have zero cantilevers); stacking feet become press-fit pins, side clip sockets preserved",
+  "derived_from": "outputs/component_mug_shelf_tall_stack_poc/stand_plan.json (monolith: 322mm > bed, 21.7% overhang, deck bridged mid-air)",
+  "model": {
+    "name": "tall_stack_screw_together",
+    "bevel": 1.181,
+    "components": [
+      {
+        "name": "beam_left",
+        "type": "box",
+        "size": [
+          160.0,
+          150.0,
+          17.6
+        ],
+        "center": [
+          -80.0,
+          0,
+          138.8
+        ]
+      },
+      {
+        "name": "beam_right",
+        "type": "box",
+        "size": [
+          160.0,
+          150.0,
+          17.6
+        ],
+        "center": [
+          80.0,
+          0,
+          138.8
+        ]
+      },
+      {
+        "name": "slab_left",
+        "type": "box",
+        "size": [
+          151.68,
+          133.5,
+          7.165
+        ],
+        "center": [
+          -75.84,
+          0,
+          150.002
+        ]
+      },
+      {
+        "name": "slab_right",
+        "type": "box",
+        "size": [
+          151.68,
+          133.5,
+          7.165
+        ],
+        "center": [
+          75.84,
+          0,
+          150.002
+        ]
+      },
+      {
+        "name": "mug_locator_outer_1",
+        "type": "cylinder",
+        "radius": 55.0,
+        "depth": 3.181,
+        "center": [
+          -63.36,
+          0,
+          153.994
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "mug_locator_outer_2",
+        "type": "cylinder",
+        "radius": 55.0,
+        "depth": 3.181,
+        "center": [
+          63.36,
+          0,
+          153.994
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "left_front_stacking_top_pad",
+        "type": "cylinder",
+        "radius": 13.25,
+        "depth": 6.347,
+        "center": [
+          -147.52,
+          -56.75,
+          155.577
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "left_back_stacking_top_pad",
+        "type": "cylinder",
+        "radius": 13.25,
+        "depth": 6.347,
+        "center": [
+          -147.52,
+          56.75,
+          155.577
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "right_front_stacking_top_pad",
+        "type": "cylinder",
+        "radius": 13.25,
+        "depth": 6.347,
+        "center": [
+          147.52,
+          -56.75,
+          155.577
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "right_back_stacking_top_pad",
+        "type": "cylinder",
+        "radius": 13.25,
+        "depth": 6.347,
+        "center": [
+          147.52,
+          56.75,
+          155.577
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "left_leg",
+        "type": "box",
+        "size": [
+          24.96,
+          150.0,
+          131.181
+        ],
+        "center": [
+          -147.52,
+          0,
+          65.59
+        ]
+      },
+      {
+        "name": "right_leg",
+        "type": "box",
+        "size": [
+          24.96,
+          150.0,
+          131.181
+        ],
+        "center": [
+          147.52,
+          0,
+          65.59
+        ]
+      },
+      {
+        "name": "left_inner_foot_lip",
+        "type": "box",
+        "size": [
+          32.64,
+          21.0,
+          5.904
+        ],
+        "center": [
+          -143.68,
+          -64.5,
+          2.952
+        ]
+      },
+      {
+        "name": "right_inner_foot_lip",
+        "type": "box",
+        "size": [
+          32.64,
+          21.0,
+          5.904
+        ],
+        "center": [
+          143.68,
+          -64.5,
+          2.952
+        ]
+      },
+      {
+        "name": "dowel_deck_front",
+        "type": "cylinder",
+        "radius": 4.0,
+        "depth": 24.0,
+        "center": [
+          0,
+          -40,
+          138.8
+        ],
+        "axis": "x",
+        "vertices": 96
+      },
+      {
+        "name": "dowel_deck_back",
+        "type": "cylinder",
+        "radius": 4.0,
+        "depth": 24.0,
+        "center": [
+          0,
+          40,
+          138.8
+        ],
+        "axis": "x",
+        "vertices": 96
+      },
+      {
+        "name": "foot_screw_left_front",
+        "type": "thread",
+        "major_radius": 8.25,
+        "pitch": 2.5,
+        "depth": 18,
+        "center": [
+          -147.52,
+          -56.75,
+          -1
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "foot_screw_left_back",
+        "type": "thread",
+        "major_radius": 8.25,
+        "pitch": 2.5,
+        "depth": 18,
+        "center": [
+          -147.52,
+          56.75,
+          -1
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "foot_screw_right_front",
+        "type": "thread",
+        "major_radius": 8.25,
+        "pitch": 2.5,
+        "depth": 18,
+        "center": [
+          147.52,
+          -56.75,
+          -1
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "foot_screw_right_back",
+        "type": "thread",
+        "major_radius": 8.25,
+        "pitch": 2.5,
+        "depth": 18,
+        "center": [
+          147.52,
+          56.75,
+          -1
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "stud_smooth_left_front",
+        "type": "cylinder",
+        "radius": 5.0,
+        "depth": 7.5,
+        "center": [
+          -147.52,
+          -40,
+          126.75
+        ],
+        "axis": "z",
+        "vertices": 96
+      },
+      {
+        "name": "stud_thread_left_front",
+        "type": "thread",
+        "major_radius": 5.0,
+        "pitch": 2.0,
+        "depth": 8.0,
+        "center": [
+          -147.52,
+          -40,
+          133.5
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "stud_smooth_left_back",
+        "type": "cylinder",
+        "radius": 5.0,
+        "depth": 7.5,
+        "center": [
+          -147.52,
+          40,
+          126.75
+        ],
+        "axis": "z",
+        "vertices": 96
+      },
+      {
+        "name": "stud_thread_left_back",
+        "type": "thread",
+        "major_radius": 5.0,
+        "pitch": 2.0,
+        "depth": 8.0,
+        "center": [
+          -147.52,
+          40,
+          133.5
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "stud_smooth_right_front",
+        "type": "cylinder",
+        "radius": 5.0,
+        "depth": 7.5,
+        "center": [
+          147.52,
+          -40,
+          126.75
+        ],
+        "axis": "z",
+        "vertices": 96
+      },
+      {
+        "name": "stud_thread_right_front",
+        "type": "thread",
+        "major_radius": 5.0,
+        "pitch": 2.0,
+        "depth": 8.0,
+        "center": [
+          147.52,
+          -40,
+          133.5
+        ],
+        "axis": "z"
+      },
+      {
+        "name": "stud_smooth_right_back",
+        "type": "cylinder",
+        "radius": 5.0,
+        "depth": 7.5,
+        "center": [
+          147.52,
+          40,
+          126.75
+        ],
+        "axis": "z",
+        "vertices": 96
+      },
+      {
+        "name": "stud_thread_right_back",
+        "type": "thread",
+        "major_radius": 5.0,
+        "pitch": 2.0,
+        "depth": 8.0,
+        "center": [
+          147.52,
+          40,
+          133.5
+        ],
+        "axis": "z"
+      }
+    ],
+    "cuts": [
+      {
+        "name": "mug_locator_inner_1",
+        "type": "cylinder",
+        "radius": 51.0,
+        "depth": 3.981,
+        "center": [
+          -63.36,
+          0,
+          153.994
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "mug_locator_inner_2",
+        "type": "cylinder",
+        "radius": 51.0,
+        "depth": 3.981,
+        "center": [
+          63.36,
+          0,
+          153.994
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "left_side_clip_socket",
+        "type": "box",
+        "size": [
+          8.0,
+          93.0,
+          9.206
+        ],
+        "center": [
+          -157.7,
+          0,
+          71.5
+        ]
+      },
+      {
+        "name": "right_side_clip_socket",
+        "type": "box",
+        "size": [
+          8.0,
+          93.0,
+          9.206
+        ],
+        "center": [
+          157.7,
+          0,
+          71.5
+        ]
+      },
+      {
+        "name": "left_front_stacking_socket",
+        "type": "cylinder",
+        "radius": 8.9,
+        "depth": 12.27,
+        "center": [
+          -147.52,
+          -56.75,
+          152.815
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "left_back_stacking_socket",
+        "type": "cylinder",
+        "radius": 8.9,
+        "depth": 12.27,
+        "center": [
+          -147.52,
+          56.75,
+          152.815
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "right_front_stacking_socket",
+        "type": "cylinder",
+        "radius": 8.9,
+        "depth": 12.27,
+        "center": [
+          147.52,
+          -56.75,
+          152.815
+        ],
+        "axis": "z",
+        "vertices": 112
+      },
+      {
+        "name": "right_back_stacking_socket",
+        "type": "cylinder",
+        "radius": 8.9,
+        "depth": 12.27,
+        "center": [
+          147.52,
+          56.75,
+          152.815
+        ],
+        "axis": "z",
+        "vertices": 112
+      }
+    ],
+    "assembly": {
+      "note": "Screw-together where kinematics allow: threaded leveling feet spin into tapped leg bottoms (print 4 foot_screw); leg studs screw into tapped deck sockets and slip 0.3 into the legs (print 4 leg_stud); deck halves keep smooth dowels x2 because neither half can rotate. FDM threads: trapezoid, depth 0.4*pitch, radial clearance 0.25 vertical / 0.3 horizontal bores.",
+      "parts": [
+        {
+          "name": "deck_left",
+          "components": [
+            "beam_left",
+            "slab_left",
+            "mug_locator_outer_1",
+            "left_front_stacking_top_pad",
+            "left_back_stacking_top_pad"
+          ],
+          "cuts": [
+            "mug_locator_inner_1",
+            "left_front_stacking_socket",
+            "left_back_stacking_socket"
+          ]
+        },
+        {
+          "name": "deck_right",
+          "components": [
+            "beam_right",
+            "slab_right",
+            "mug_locator_outer_2",
+            "right_front_stacking_top_pad",
+            "right_back_stacking_top_pad"
+          ],
+          "cuts": [
+            "mug_locator_inner_2",
+            "right_front_stacking_socket",
+            "right_back_stacking_socket"
+          ]
+        },
+        {
+          "name": "leg_left",
+          "components": [
+            "left_leg",
+            "left_inner_foot_lip"
+          ],
+          "cuts": [
+            "left_side_clip_socket"
+          ],
+          "rotate_deg": [
+            0,
+            -90,
+            0
+          ]
+        },
+        {
+          "name": "leg_right",
+          "components": [
+            "right_leg",
+            "right_inner_foot_lip"
+          ],
+          "cuts": [
+            "right_side_clip_socket"
+          ],
+          "rotate_deg": [
+            0,
+            90,
+            0
+          ]
+        },
+        {
+          "name": "leg_stud_x4",
+          "components": [
+            "stud_smooth_left_front",
+            "stud_thread_left_front"
+          ],
+          "bevel": 0
+        },
+        {
+          "name": "foot_screw_x4",
+          "components": [
+            "foot_screw_left_front"
+          ],
+          "bevel": 0
+        },
+        {
+          "name": "deck_dowel_x2",
+          "components": [
+            "dowel_deck_front"
+          ],
+          "rotate_deg": [
+            0,
+            90,
+            0
+          ],
+          "bevel": 0
+        }
+      ],
+      "joints": [
+        {
+          "type": "peg",
+          "name": "dowel_deck_front_L",
+          "female": "deck_left",
+          "clearance": 0.2,
+          "cylinder": {
+            "radius": 4.0,
+            "depth": 24.0,
+            "center": [
+              0,
+              -40,
+              138.8
+            ],
+            "axis": "x"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "dowel_deck_front_R",
+          "female": "deck_right",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 4.0,
+            "depth": 24.0,
+            "center": [
+              0,
+              -40,
+              138.8
+            ],
+            "axis": "x"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "dowel_deck_back_L",
+          "female": "deck_left",
+          "clearance": 0.2,
+          "cylinder": {
+            "radius": 4.0,
+            "depth": 24.0,
+            "center": [
+              0,
+              40,
+              138.8
+            ],
+            "axis": "x"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "dowel_deck_back_R",
+          "female": "deck_right",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 4.0,
+            "depth": 24.0,
+            "center": [
+              0,
+              40,
+              138.8
+            ],
+            "axis": "x"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "stud_left_front_deck",
+          "female": "deck_left",
+          "clearance": 0.25,
+          "thread": {
+            "major_radius": 5.0,
+            "pitch": 2.0,
+            "depth": 8.6,
+            "center": [
+              -147.52,
+              -40,
+              133.9
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "stud_left_front_leg",
+          "female": "leg_left",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 5.0,
+            "depth": 8.4,
+            "center": [
+              -147.52,
+              -40,
+              128.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "stud_left_back_deck",
+          "female": "deck_left",
+          "clearance": 0.25,
+          "thread": {
+            "major_radius": 5.0,
+            "pitch": 2.0,
+            "depth": 8.6,
+            "center": [
+              -147.52,
+              40,
+              133.9
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "stud_left_back_leg",
+          "female": "leg_left",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 5.0,
+            "depth": 8.4,
+            "center": [
+              -147.52,
+              40,
+              128.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "stud_right_front_deck",
+          "female": "deck_right",
+          "clearance": 0.25,
+          "thread": {
+            "major_radius": 5.0,
+            "pitch": 2.0,
+            "depth": 8.6,
+            "center": [
+              147.52,
+              -40,
+              133.9
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "stud_right_front_leg",
+          "female": "leg_right",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 5.0,
+            "depth": 8.4,
+            "center": [
+              147.52,
+              -40,
+              128.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "stud_right_back_deck",
+          "female": "deck_right",
+          "clearance": 0.25,
+          "thread": {
+            "major_radius": 5.0,
+            "pitch": 2.0,
+            "depth": 8.6,
+            "center": [
+              147.52,
+              40,
+              133.9
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "peg",
+          "name": "stud_right_back_leg",
+          "female": "leg_right",
+          "clearance": 0.3,
+          "cylinder": {
+            "radius": 5.0,
+            "depth": 8.4,
+            "center": [
+              147.52,
+              40,
+              128.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "foot_left_front_tap",
+          "female": "leg_left",
+          "clearance": 0.3,
+          "thread": {
+            "major_radius": 8.25,
+            "pitch": 2.5,
+            "depth": 10.0,
+            "center": [
+              -147.52,
+              -56.75,
+              3.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "foot_left_back_tap",
+          "female": "leg_left",
+          "clearance": 0.3,
+          "thread": {
+            "major_radius": 8.25,
+            "pitch": 2.5,
+            "depth": 10.0,
+            "center": [
+              -147.52,
+              56.75,
+              3.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "foot_right_front_tap",
+          "female": "leg_right",
+          "clearance": 0.3,
+          "thread": {
+            "major_radius": 8.25,
+            "pitch": 2.5,
+            "depth": 10.0,
+            "center": [
+              147.52,
+              -56.75,
+              3.2
+            ],
+            "axis": "z"
+          }
+        },
+        {
+          "type": "thread",
+          "name": "foot_right_back_tap",
+          "female": "leg_right",
+          "clearance": 0.3,
+          "thread": {
+            "major_radius": 8.25,
+            "pitch": 2.5,
+            "depth": 10.0,
+            "center": [
+              147.52,
+              56.75,
+              3.2
+            ],
+            "axis": "z"
+          }
+        }
+      ]
+    }
+  }
+}
