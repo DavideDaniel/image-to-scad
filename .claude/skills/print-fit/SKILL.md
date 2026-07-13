@@ -54,6 +54,16 @@ When the user reports how printed parts mate, adjust the plan's joint
   foot") often causes tightness only at the socket mouth — a small chamfer on the
   socket opening (or slicer elephant-foot compensation) beats growing the whole
   clearance.
+- **Adjust the cheap side.** When a fit fails after parts are printed, fix it by
+  resizing the small/fast part (pin, stud, dowel — minutes and grams) to match the
+  as-printed socket, NOT by reprinting the large socketed part. Shrinking a male
+  thread's major radius by X adds X of effective radial clearance against an
+  existing female. Two exceptions: (1) a *blocked* tapped mouth (ungrooved ring)
+  can't be fixed by a smaller thread — small enough to pass the ring means zero
+  ridge engagement; either ream the mouth ring out (it's usually <1 mm of plastic,
+  a drill bit does it) or switch that end of the pin to a smooth glue-in; (2) if
+  the female is physically damaged. Author rescue pins against the AS-PRINTED
+  female dimensions (the plan version that was actually printed, not the fixed one).
 - **Record calibrated values** in the "Calibrated fits" table below (edit this
   file) so future models start from the right number for that printer + material.
 

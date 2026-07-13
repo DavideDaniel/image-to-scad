@@ -1,0 +1,25 @@
+{
+  "schema": "component-plan/v1",
+  "units": "mm",
+  "design_intent": "rescue pins sized to the AS-PRINTED (pre-fix) tall-shelf sockets, so the expensive decks/legs need no reprint",
+  "derived_from": "plan_componentized.json at commit 4fa9b91 (deck taps 0.25 with blocked mouth, foot taps 0.3, leg bores 0.3, dowel bores 0.3)",
+  "model": {
+    "name": "tall_stack_rescue_pins",
+    "bevel": 0,
+    "components": [
+      {"name": "rescue_stud_bottom", "type": "cylinder", "radius": 4.9, "depth": 8.0, "center": [0, 0, 4.0], "axis": "z", "vertices": 96},
+      {"name": "rescue_stud_top", "type": "cylinder", "radius": 4.35, "depth": 7.5, "center": [0, 0, 11.5], "axis": "z", "vertices": 96},
+      {"name": "rescue_foot", "type": "thread", "major_radius": 8.1, "pitch": 2.5, "depth": 18, "center": [30, 0, 9.0], "axis": "z"},
+      {"name": "rescue_deck_dowel", "type": "cylinder", "radius": 3.9, "depth": 24, "center": [60, 0, 12.0], "axis": "z", "vertices": 96}
+    ],
+    "assembly": {
+      "note": "rescue_stud: smooth both ends - bottom r4.9 slips the printed r5.3 leg bores, top r4.35 passes the blocked tap mouth (r~4.57) and glue-seats on the r4.45 thread ridges. rescue_foot: major 8.1 threads into the printed 0.3-clearance leg taps as if 0.45. rescue_deck_dowel: r3.9 slim for sagged horizontal r4.3 bores.",
+      "parts": [
+        {"name": "rescue_stud_x4", "components": ["rescue_stud_bottom", "rescue_stud_top"]},
+        {"name": "rescue_foot_x4", "components": ["rescue_foot"]},
+        {"name": "rescue_deck_dowel_x2", "components": ["rescue_deck_dowel"]}
+      ],
+      "joints": []
+    }
+  }
+}
