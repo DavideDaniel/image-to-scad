@@ -39,6 +39,24 @@ The code was written carefully against known-stable APIs, but treat it as
 check: does it build, does the sample plan render, do the sliders resize the
 model live, does STL export/share work.
 
+## Getting an APK without a computer
+
+`.github/workflows/android-build.yml` builds `:app` on GitHub's own runners
+(which have normal internet access, unlike this sandbox) and uploads the
+debug APK as a build artifact. From a phone:
+
+1. Open the repo on GitHub → **Actions** tab → **Android build** workflow.
+2. If it hasn't run yet, trigger it manually (the "Run workflow" button —
+   `workflow_dispatch`), or push any change under `android-app/`.
+3. Open the latest run. A green check means it *compiled* — that alone
+   answers "does it build". Under **Artifacts**, download
+   `image-to-stl-debug-apk`.
+4. It downloads as a `.zip` containing the `.apk`; extract it (most phone
+   file managers can), then open the `.apk` to install. Android will ask you
+   to allow installs from this source the first time.
+5. If the build goes red instead, the job log says exactly which Gradle task
+   and line failed — that's the next thing to fix, not a dead end.
+
 ## Building it
 
 1. Open `android-app/` in Android Studio (Gradle sync needs normal internet
