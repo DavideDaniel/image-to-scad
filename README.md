@@ -46,6 +46,13 @@ Broken-but-detailed meshes (e.g. TRELLIS output) are rescued by
 `scripts/blender_finish.py` — an OpenVDB voxel remesh that produces a watertight
 manifold while preserving the detail that conventional mesh repair destroys.
 
+## 3. Android companion (experimental)
+
+An on-device app for the component-model track: load a `component-plan/v0`, edit its
+dimensions with sliders, preview the model live, export/share an STL — no server, no
+Blender required. See **[android-app/README.md](android-app/README.md)** for what's
+implemented, what's verified, and how to build it.
+
 ## Requirements
 
 - Python 3.11+, `python -m venv venv && venv/bin/pip install -r requirements.txt`
