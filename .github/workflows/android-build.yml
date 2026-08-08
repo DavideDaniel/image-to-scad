@@ -11,6 +11,9 @@ on:
       - "android-app/**"
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -41,6 +44,21 @@ jobs:
           name: image-to-stl-debug-apk
           path: android-app/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      # Actions artifacts require a GitHub login to download, which is a bad
+      # experience on a phone browser. A Release asset is a plain, public,
+      # no-login-required URL, so publish the same APK there too - overwriting
+      # a fixed "debug-latest" tag each run rather than piling up releases.
+      - name: Publish APK as a public Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=$(find app/build/outputs/apk/debug -name '*.apk' | head -n1)
+          gh release delete debug-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+          gh release create debug-latest "$APK" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Debug APK (latest)" \
+            --notes "Auto-built from commit $GITHUB_SHA. Always overwritten by the newest CI run - not a versioned release."
 
       - name: Upload :core test report
         if: always()
