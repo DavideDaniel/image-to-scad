@@ -1,0 +1,319 @@
+{
+  "schema": "component-plan/v0",
+  "generator": "component_plan_from_stand_images.py",
+  "source_images": {
+    "front": "examples/sample_images/stand_multiview/01_front.png",
+    "right": "examples/sample_images/stand_multiview/03_right.png",
+    "top": "examples/sample_images/stand_multiview/06_top.png"
+  },
+  "measurements": {
+    "front_bbox_px": [
+      247,
+      358,
+      2537,
+      1176
+    ],
+    "top_bbox_px": [
+      248,
+      473,
+      2535,
+      1061
+    ],
+    "right_bbox_px": [
+      1022,
+      358,
+      1763,
+      1250
+    ],
+    "front_width_px": 2291,
+    "front_height_px": 819,
+    "top_width_px": 2288,
+    "top_depth_px": 589,
+    "right_depth_px": 742,
+    "right_height_px": 893
+  },
+  "units": "mm",
+  "model": {
+    "name": "rectilinear_stand",
+    "strategy": "component_boxes",
+    "design_intent": "stackable modular mug shelf",
+    "target_width": 320.0,
+    "inferred_depth": 150.0,
+    "inferred_height": 120.687,
+    "bevel": 0.915,
+    "components": [
+      {
+        "name": "top_main_beam",
+        "type": "box",
+        "size": [
+          320.0,
+          150.0,
+          18.303
+        ],
+        "center": [
+          0,
+          0,
+          105.244
+        ]
+      },
+      {
+        "name": "top_raised_slab",
+        "type": "box",
+        "size": [
+          303.36,
+          133.5,
+          7.207
+        ],
+        "center": [
+          0,
+          0,
+          117.084
+        ]
+      },
+      {
+        "name": "left_leg",
+        "type": "box",
+        "size": [
+          24.96,
+          150.0,
+          97.007
+        ],
+        "center": [
+          -147.52,
+          0,
+          48.504
+        ]
+      },
+      {
+        "name": "right_leg",
+        "type": "box",
+        "size": [
+          24.96,
+          150.0,
+          97.007
+        ],
+        "center": [
+          147.52,
+          0,
+          48.504
+        ]
+      },
+      {
+        "name": "left_inner_foot_lip",
+        "type": "box",
+        "size": [
+          32.64,
+          21.0,
+          4.576
+        ],
+        "center": [
+          -143.68,
+          -64.5,
+          2.288
+        ]
+      },
+      {
+        "name": "right_inner_foot_lip",
+        "type": "box",
+        "size": [
+          32.64,
+          21.0,
+          4.576
+        ],
+        "center": [
+          143.68,
+          -64.5,
+          2.288
+        ]
+      },
+      {
+        "name": "mug_locator_outer_1",
+        "type": "cylinder",
+        "radius": 55.0,
+        "depth": 2.915,
+        "center": [
+          -63.36,
+          0,
+          121.23
+        ],
+        "vertices": 192,
+        "role": "raised circular locator ring"
+      },
+      {
+        "name": "mug_locator_outer_2",
+        "type": "cylinder",
+        "radius": 55.0,
+        "depth": 2.915,
+        "center": [
+          63.36,
+          0,
+          121.23
+        ],
+        "vertices": 192,
+        "role": "raised circular locator ring"
+      },
+      {
+        "name": "left_front_stacking_foot",
+        "type": "cylinder",
+        "radius": 5.25,
+        "depth": 6.292,
+        "center": [
+          -147.52,
+          -64.5,
+          -2.231
+        ],
+        "vertices": 96,
+        "role": "bottom stacking registration foot"
+      },
+      {
+        "name": "left_back_stacking_foot",
+        "type": "cylinder",
+        "radius": 5.25,
+        "depth": 6.292,
+        "center": [
+          -147.52,
+          64.5,
+          -2.231
+        ],
+        "vertices": 96,
+        "role": "bottom stacking registration foot"
+      },
+      {
+        "name": "right_front_stacking_foot",
+        "type": "cylinder",
+        "radius": 5.25,
+        "depth": 6.292,
+        "center": [
+          147.52,
+          -64.5,
+          -2.231
+        ],
+        "vertices": 96,
+        "role": "bottom stacking registration foot"
+      },
+      {
+        "name": "right_back_stacking_foot",
+        "type": "cylinder",
+        "radius": 5.25,
+        "depth": 6.292,
+        "center": [
+          147.52,
+          64.5,
+          -2.231
+        ],
+        "vertices": 96,
+        "role": "bottom stacking registration foot"
+      }
+    ],
+    "cuts": [
+      {
+        "name": "mug_locator_inner_1",
+        "type": "cylinder",
+        "radius": 51.0,
+        "depth": 3.715,
+        "center": [
+          -63.36,
+          0,
+          121.23
+        ],
+        "vertices": 192,
+        "role": "open center of raised mug locator ring"
+      },
+      {
+        "name": "mug_locator_inner_2",
+        "type": "cylinder",
+        "radius": 51.0,
+        "depth": 3.715,
+        "center": [
+          63.36,
+          0,
+          121.23
+        ],
+        "vertices": 192,
+        "role": "open center of raised mug locator ring"
+      },
+      {
+        "name": "left_side_clip_socket",
+        "type": "box",
+        "size": [
+          6.11,
+          93.0,
+          7.214
+        ],
+        "center": [
+          -156.745,
+          0,
+          52.851
+        ],
+        "role": "side-by-side clip socket"
+      },
+      {
+        "name": "right_side_clip_socket",
+        "type": "box",
+        "size": [
+          6.11,
+          93.0,
+          7.214
+        ],
+        "center": [
+          156.745,
+          0,
+          52.851
+        ],
+        "role": "side-by-side clip socket"
+      },
+      {
+        "name": "left_front_stacking_socket",
+        "type": "cylinder",
+        "radius": 5.7,
+        "depth": 7.092,
+        "center": [
+          -147.52,
+          -64.5,
+          117.341
+        ],
+        "vertices": 96,
+        "role": "top receiver pocket for stacking foot"
+      },
+      {
+        "name": "left_back_stacking_socket",
+        "type": "cylinder",
+        "radius": 5.7,
+        "depth": 7.092,
+        "center": [
+          -147.52,
+          64.5,
+          117.341
+        ],
+        "vertices": 96,
+        "role": "top receiver pocket for stacking foot"
+      },
+      {
+        "name": "right_front_stacking_socket",
+        "type": "cylinder",
+        "radius": 5.7,
+        "depth": 7.092,
+        "center": [
+          147.52,
+          -64.5,
+          117.341
+        ],
+        "vertices": 96,
+        "role": "top receiver pocket for stacking foot"
+      },
+      {
+        "name": "right_back_stacking_socket",
+        "type": "cylinder",
+        "radius": 5.7,
+        "depth": 7.092,
+        "center": [
+          147.52,
+          64.5,
+          117.341
+        ],
+        "vertices": 96,
+        "role": "top receiver pocket for stacking foot"
+      }
+    ]
+  }
+}
