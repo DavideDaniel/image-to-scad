@@ -146,3 +146,10 @@ temp/
 
 # Generated model outputs (STL/OBJ/blend/renders)
 outputs/
+
+# Android app (android-app/) - Gradle/Android Studio local state
+android-app/.gradle/
+android-app/local.properties
+android-app/**/.cxx/
+android-app/**/captures/
+*.iml

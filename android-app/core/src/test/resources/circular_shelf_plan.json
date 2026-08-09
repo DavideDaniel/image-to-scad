@@ -1,0 +1,21 @@
+{
+  "schema": "component-plan/v0",
+  "units": "mm",
+  "source_images": "examples/sample_images/circular_shelf_3dprint.png (2x2 grid, view_a canonical)",
+  "design_intent": "two-tier round shelf: base disc, 3 rim posts at 90deg (open front), top tray with raised rim lip",
+  "assumptions": {"diameter_mm": 250.0, "note": "no real dimension given; height 163 from front-view aspect 1.536"},
+  "model": {
+    "name": "circular_shelf",
+    "bevel": 0.8,
+    "components": [
+      {"name": "base_disc", "type": "cylinder", "radius": 125, "depth": 9, "center": [0, 0, 4.5], "axis": "z", "vertices": 128},
+      {"name": "post_left", "type": "cylinder", "radius": 7.5, "depth": 135, "center": [-108, 0, 75.5], "axis": "z", "vertices": 96},
+      {"name": "post_right", "type": "cylinder", "radius": 7.5, "depth": 135, "center": [108, 0, 75.5], "axis": "z", "vertices": 96},
+      {"name": "post_rear", "type": "cylinder", "radius": 7.5, "depth": 135, "center": [0, 108, 75.5], "axis": "z", "vertices": 96},
+      {"name": "tray_body", "type": "cylinder", "radius": 125, "depth": 22, "center": [0, 0, 152], "axis": "z", "vertices": 128}
+    ],
+    "cuts": [
+      {"name": "tray_recess", "type": "cylinder", "radius": 117, "depth": 11, "center": [0, 0, 159], "axis": "z", "vertices": 128}
+    ]
+  }
+}

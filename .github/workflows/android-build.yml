@@ -1,0 +1,69 @@
+name: Android build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "android-app/**"
+      - ".github/workflows/android-build.yml"
+  pull_request:
+    paths:
+      - "android-app/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run :core unit tests (pure-Kotlin CSG engine)
+        run: ./gradlew :core:test --stacktrace
+
+      - name: Build :app debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-to-stl-debug-apk
+          path: android-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      # Actions artifacts require a GitHub login to download, which is a bad
+      # experience on a phone browser. A Release asset is a plain, public,
+      # no-login-required URL, so publish the same APK there too - overwriting
+      # a fixed "debug-latest" tag each run rather than piling up releases.
+      - name: Publish APK as a public Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=$(find app/build/outputs/apk/debug -name '*.apk' | head -n1)
+          gh release delete debug-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+          gh release create debug-latest "$APK" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Debug APK (latest)" \
+            --notes "Auto-built from commit $GITHUB_SHA. Always overwritten by the newest CI run - not a versioned release."
+
+      - name: Upload :core test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-test-report
+          path: android-app/core/build/reports/tests/test/
+          if-no-files-found: ignore
